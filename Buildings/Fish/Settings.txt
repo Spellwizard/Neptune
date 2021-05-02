@@ -1,0 +1,9 @@
+objWidth=100
+objHeight=50
+HSpeed = 1
+VSpeed= 0
+UpModel=cloud.png
+DownModel=cloud.png
+LeftModel=fish.png
+RightModel=fish_right.png
+isSolid=true

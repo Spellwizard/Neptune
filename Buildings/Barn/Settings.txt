@@ -1,0 +1,9 @@
+objWidth=5
+objHeight=5
+HSpeed = 0
+VSpeed= 0.1
+UpModel=buoy.png
+DownModel=buoy.png
+LeftModel=buoy.png
+RightModel=buoy.png
+isSolid=true

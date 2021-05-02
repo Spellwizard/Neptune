@@ -1,0 +1,9 @@
+objWidth=50
+objHeight=50
+HSpeed = 0
+VSpeed= 0.1
+UpModel=moon.png
+DownModel=moon.png
+LeftModel=moon.png
+RightModel=moon.png
+isSolid=true

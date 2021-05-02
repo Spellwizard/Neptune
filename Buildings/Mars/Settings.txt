@@ -1,0 +1,9 @@
+objWidth=25
+objHeight=25
+HSpeed = 0
+VSpeed= 0.9
+UpModel=mars.png
+DownModel=mars.png
+LeftModel=mars.png
+RightModel=mars.png
+isSolid=true
