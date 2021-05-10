@@ -58,7 +58,8 @@ public class RotatingMovingObject extends MovingObject{
 
         //default to the regular drawobj if the desired image is null
 
-            drawRotatingObject_outlines(gg, maps);
+        if(maps.isWithinMapSight(this))
+                        drawRotatingObject_outlines(gg, maps);
 
 
     }
@@ -126,7 +127,6 @@ public class RotatingMovingObject extends MovingObject{
         gg.setTransform(transform);
 
         if(getUp_Image()!=null){
-            super.setCurrentImage( getUp_Image());
 
             gg.drawImage(
                     super.getUp_Image(),
@@ -241,7 +241,7 @@ public class RotatingMovingObject extends MovingObject{
 
     }
 
-    private double safetyRotation_number(double number){
+    protected static double safetyRotation_number(double number){
         double result = number;
 
         if(number < 0){

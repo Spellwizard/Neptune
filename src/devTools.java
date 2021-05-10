@@ -56,25 +56,6 @@ public class devTools {
 
 
 
-                if (false) {
-
-
-
-                    /*
-                     * make some text on screen with some detail for the object list of the buildings
-                     */
-                    if (gameMap.getBackgroundTextureObjects() != null)
-                        for (RotatingMovingObject john : gameMap.getBackgroundTextureObjects()) {
-                            line = "BackgroundTextureObjects: " + devTools.getVars_SolidObject(john, gameMap, true, false, true,
-                                    false, true);
-                            gg.drawString(line
-                                    , 50, 50 + posy);
-                            posy += 15;
-                        }
-                }
-
-
-
 
                 }
             }

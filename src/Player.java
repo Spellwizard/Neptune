@@ -1,24 +1,39 @@
+//AWT / Graphics are used to draw the window and the objects onto it
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 
+//Keyevent is used to track and call functions as appropriate to adjust the player object (EG: move up, down, fire, stop, ect)
+import java.awt.event.KeyEvent;
+
+//Math.abs is just used a few times when i need to get the absolute value of a value
 import static java.lang.Math.abs;
 
+/**
+ * Player
+ * Player Class has 1 instance at any given time and is the object representing the player
+ */
 public class Player extends RotatingMovingObject {
 
-    //the keyboard value associated with each of the following movment / input types
+
+    //the keyboard value associated with each of the following movement / input types
+
+    //Movement
     private int buttonUp; //UP
     private int buttonDown; //DOWN
     private int buttonLeft; //LEFT
     private int buttonRight; //RIGHT
     private int buttonSprint = 16;//SPRINT
 
-    private int buttonFire_Left = 81;//fire weapons on the left side
+    //Combat inputs
+    private int buttonFire_Right = 69;//Fire Weapons on the Right
+    private int buttonFire_Left = 81;//Fire Weapons on the Left
+
+
+    //Health
+    private int MAXHEALTH;
+
 
     //Scoreboard to track the score that the player object has achieved :)
     private int player_score;
-
-    private int MAXHEALTH;
 
 
     /**
@@ -101,36 +116,6 @@ public class Player extends RotatingMovingObject {
 
     }
 
-
-    /**
-     * KeyBoard Inputs: buttonUP, buttonDown, buttonLeft, buttonRight ,buttonFire, buttonAltFire
-     * Player Values: Height, Width, VSpeed (and sets the default), HSpeed (and sets the default), health, name (entirely for role play)
-     *  Player reference values: FIRECOOLDOWN, BOMBCOOLDOWN, DefaultProjectileHeight, DefaultProjectileWidth
-     *
-     *  and will safely loop through and override if any such values are found
-     *
-     *  This looping allows for easy changes to the numbers of players without having to add additional code but
-     *             means that to set a value it will look for buttonUp = 'Player_' + (the position, yes from 0)+'buttonUp'
-     *             so as a whole it might set the 3rd players buttonAltFire = 'Player_2_buttonAltFire'
-     */
-    protected static void OverrideAllPlayerValues(Player johndoe, Map maps) {
-
-        FileReader file = new FileReader("Players Model\\Player_0\\playersettings.txt");
-        String temp = "";
-        String players_folder = "Players Model\\Player_";
-        String fileName = "playersettings.txt";
-        String type = "Player";
-
-        file.setFileName("Players Model\\Player_0\\playersettings.txt");
-
-        file.setFileFolder("Players Model\\Player_0\\");
-
-        System.out.println("OverridingPlayer: "+file.getFileName());
-
-        johndoe = BasePopulateLists.basePopulatePlayers(1, maps);
-
-
-    }
 
     private void DevDrawStaticVariables(int x, int y, Graphics2D gg, Map maps){
 
@@ -243,9 +228,52 @@ public class Player extends RotatingMovingObject {
 
     /**
      * If any of the players weapons are activated then fire towards the mouse target
-     * @param pointy
      */
-    private void calcPlayerFire(Point pointy, Map map){
+    private void calcPlayerFire(double Rotation){
+
+        //fire the projectile(s?) to the left of the player
+
+        //make an projectile at the center of the object and set it to -90 degrees of the current position.
+
+        RotatingMovingObject projectile_1 =
+                new RotatingMovingObject(
+                        this.getPosX()+(this.getObjWidth()/2),
+                        this.getPosY()+(this.getObjHeight()/2),
+
+                        5,5,1,1
+                )  ;
+
+        RotatingMovingObject projectile_2 =
+                new RotatingMovingObject(
+                        projectile_1.getPosX()+(this.getObjWidth()/4),
+                        projectile_1.getPosY()+ (this.getObjHeight()/4),
+
+                        5,5,1,1
+                )  ;
+
+        RotatingMovingObject projectile_3 =
+                new RotatingMovingObject(
+                        projectile_1.getPosX()-(this.getObjWidth()/4),
+                        projectile_1.getPosY()-(this.getObjHeight()/4),
+
+                        5,5,1,1
+                )  ;
+
+        projectile_1.setRotation(Rotation);
+        projectile_2.setRotation(Rotation);
+        projectile_3.setRotation(Rotation);
+
+        projectile_1.setSpeed(
+                new CoolDownBar(10, 10,1,1,true));
+
+        projectile_2.setSpeed(projectile_1.getSpeed());
+
+        projectile_3.setSpeed(projectile_1.getSpeed());
+
+
+        this.getProjectileList().add(projectile_1);
+        this.getProjectileList().add(projectile_2);
+        this.getProjectileList().add(projectile_3);
 
 
     } //end of function
@@ -258,6 +286,8 @@ public class Player extends RotatingMovingObject {
      */
     protected static void drawPlayer(   Graphics2D gg,      Player a,       Map maps) {
 
+        //draw a circle to use temp for collision detection/ debugging
+        gg.setColor(new Color(127, 115, 115, 72));
 
         a.drawobj(gg, maps);
 
@@ -285,35 +315,12 @@ public class Player extends RotatingMovingObject {
         }
 
 
-
         //Draw the UI for the player (health bar, sprint, hover time, ect
         a.drawUI(gg, maps);
 
         //then if they exceeded any border then loop them around the value
-        a.RevisedBorderTest(a, false, maps);
+       // a.RevisedBorderTest(a, false, maps);
 
-
-
-    }
-
-
-
-    /**
-     * Jump Function to prevent unsupported jumps
-     * ie: jumping off air
-     *
-     * This function will ascertain if the player is either
-     * 1. on the map floor
-     * 2. on an object
-     *
-     * and only then will perform the jump command if one or both of the above instances are met
-     */
-    private void movePlayerUp(Map gameMap){
-
-        //now a proper jump may occur
-        this.setObjVSpeed(
-                -abs(this.getDefaultVSpeed()
-                ));
 
 
     }
@@ -349,8 +356,6 @@ public class Player extends RotatingMovingObject {
 
                 }
 
-
-
                 /**
                  * IN ORDER TO ALLOW FOR CONSTANT SIDE SCROLLING, DISABLING ON RELEASE PLAYER STOPS MOVING
                  */
@@ -370,29 +375,34 @@ public class Player extends RotatingMovingObject {
                         }
 
             self.calcMovement();
-
-
     }
 
+    /**
+     * Function to call whenenever a button is pressed to calculate and adjust player if it was one of the desire key presses
+     * @param e
+     * @param gameMap
+     */
     protected void calcPlayerPressedKey(KeyEvent e, Map gameMap){
 
         int key = e.getKeyCode();
 
             //UP Key
             if (this.getButtonUp() == key) {
+                this.setObjVSpeed(
+                        -abs(this.getDefaultVSpeed()
+                        ));
 
-                //call the jump fuction which factors in a number of points and decides if jumping is appropriate
-                movePlayerUp(gameMap);
+            }
 
-
-            } else //DOWN Key
-                if (this.getButtonDown() == key) {
+            //DOWN Key
+            else if (   this.getButtonDown() == key     ) {
                     //handle moving the plane / player in the requested direction
                     //Move the player up by absolute of the default value
 
                     this.setObjVSpeed(
                             abs(this.getDefaultVSpeed()
                             ));
+
                 } else //LEFT Key
                     if (this.getButtonLeft() == key) {
 
@@ -430,50 +440,17 @@ public class Player extends RotatingMovingObject {
                         //Left Fire
                         else if(this.getButtonFire_Left()==key){
 
-                            //fire the projectile(s?) to the left of the player
+                          calcPlayerFire(this.getRotation()+90);
+                        }
 
-                            //make an projectile at the center of the object and set it to -90 degrees of the current position.
+                        //Right Fire
+                        else if (this.getButtonFire_Right()==key){
 
-                            RotatingMovingObject projectile_1 =
-                              new RotatingMovingObject(
-                                      this.getPosX()+(this.getObjWidth()/2),
-                                      this.getPosY()+(this.getObjHeight()/2),
+                            calcPlayerFire(this.getRotation()-90);
 
-                                      5,5,1,1
-                                      )  ;
-
-                            RotatingMovingObject projectile_2 =
-                                    new RotatingMovingObject(
-                                            projectile_1.getPosX()+(this.getObjWidth()/4),
-                                            projectile_1.getPosY()+ (this.getObjHeight()/4),
-
-                                            5,5,1,1
-                                    )  ;
-
-                            RotatingMovingObject projectile_3 =
-                                    new RotatingMovingObject(
-                                            projectile_1.getPosX()-(this.getObjWidth()/4),
-                                            projectile_1.getPosY()-(this.getObjHeight()/4),
-
-                                            5,5,1,1
-                                    )  ;
-
-                            projectile_1.setRotation(this.getRotation()+90);
-                            projectile_2.setRotation(this.getRotation()+90);
-                            projectile_3.setRotation(this.getRotation()+90);
-
-                            projectile_1.setSpeed(
-                                    new CoolDownBar(10, 10,1,1,true));
-
-                            projectile_2.setSpeed(projectile_1.getSpeed());
-
-                            projectile_3.setSpeed(projectile_1.getSpeed());
-
-
-                            this.getProjectileList().add(projectile_1);
-                            this.getProjectileList().add(projectile_2);
-                            this.getProjectileList().add(projectile_3);
-
+                        }
+                        else{
+                            System.out.println("Key; "+key);
                         }
 
     }
@@ -546,4 +523,12 @@ public class Player extends RotatingMovingObject {
         this.MAXHEALTH = MAXHEALTH;
     }
 
+
+    public int getButtonFire_Right() {
+        return buttonFire_Right;
+    }
+
+    public void setButtonFire_Right(int buttonFire_Right) {
+        this.buttonFire_Right = buttonFire_Right;
+    }
 }

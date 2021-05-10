@@ -51,9 +51,7 @@ public class MainSecond {
             int map_height = tile_width *75;
 
             //Initialize the object used to track the fundamentals: gravity, grid sizes, the position and size of the players view of the overall map
-            world_Map = new Map(0,0,40,400,
-                    map_width, map_height, tile_width, tile_height,
-                    0, 0);
+            world_Map = new Map(map_width, map_height, tile_width, tile_height);
 
             //Init the Player object
             PlayerZero = BasePopulateLists.basePopulatePlayers(1, world_Map);
@@ -90,8 +88,6 @@ public class MainSecond {
 
             //use prebuilt values, make players and put them into the frogList arrayList
 
-            Player.OverrideAllPlayerValues(PlayerZero, world_Map);
-
             //make sure that the window will actually listen for inputs
             initListeners();
 
@@ -125,15 +121,9 @@ public class MainSecond {
                     //Cast the Graphics object g into a 2D object, this allows for 2D optimization / design
                     Graphics2D gg = (Graphics2D) g;
 
-                    //sigh... can't remember where I first picked this up from github but I know it has something to do with optimization
+                    //update the map
                     world_Map.CycleUpdate( PlayerZero, gg,this.getWidth(), this.getHeight());
 
-
-
-                    //BUILDINGS
-
-                    RotatingMovingObject.drawRotatingMovingObject_Round(gg, world_Map.getBackgroundTextureObjects(), world_Map,
-                            true, true);
 
 
                     //PLAYER

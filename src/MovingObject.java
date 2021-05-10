@@ -16,17 +16,11 @@ public class MovingObject extends SolidObject{
     private double defaultHSpeed; //horizontally
     private double defaultVSpeed; //vertically
 
+
+
     //the current actual value of the object speed
     private double objHSpeed; //the HORIZONTAL OR THE LEFT / RIGHT MOTION OF THE CRAFT
     private double objVSpeed; //THE VERTICAL OR THE UP / DOWN MOTION OF THE CRAFT
-
-
-    private BufferedImage currentImage = null;
-
-
-
-    //More logical constructor only asking for some values
-    //Full constructor that on construction sets all values for the player
 
     /**
      *
@@ -49,110 +43,24 @@ public class MovingObject extends SolidObject{
 
     }
 
-    /**
-     *
-     * @param posX the top left corner of the object's x value
-     * @param posY the top left corner y value
-     * @param objWidth the width of the object
-     * @param objHeight the height of the object
-     * @param defaultHSpeed sets the current H speed and stores the original H speed as default for calling later
-     * @param defaultVSpeed sets the current V speed and stores the oringinal V speed as defualt for caling later
-     */
-    public MovingObject(double posX, double posY, int objWidth, int objHeight,
-                        double defaultHSpeed, double defaultVSpeed) {
-        super(posX, posY, objWidth, objHeight, Color.BLACK);
-
-
-
-        this.defaultHSpeed = defaultHSpeed;
-        this.defaultVSpeed = defaultVSpeed;
-
-        this.objHSpeed = defaultHSpeed;
-        this.objVSpeed = defaultVSpeed;
-
-    }
 
     /**
+     * CalcMovement
+     * Function called universally to adjust the movement of a MovingObject
      *
-     * @param posX the top left corner of the object's x value
-      * @param posY the top left corner y value
-     */
-    public MovingObject(int posX, int posY) {
-        super(posX, posY, 50, 50, Color.BLACK);
-
-        this.defaultHSpeed = 0;
-        this.defaultVSpeed = 0;
-
-        this.objHSpeed = 0;
-        this.objVSpeed = 0;
-    }
-
-    /**
-     *
-     * @param posX the top left corner of the object's x value
-     * @param posY the top left corner y value
-     * @param objWidth the width of the object
-     * @param objHeight the height of the object
-     * @param objHSpeed and sets defaultHSpeed as sets the current H speed and stores the original H speed as default for calling later
-     * @param objVSpeed and sets defaultVSpeed sets the current V speed and stores the oringinal V speed as defualt for caling later
-     */
-    public MovingObject(int objWidth, int objHeight, int posX, int posY, Color objColour,
-                        BufferedImage r_Image, BufferedImage l_Image, BufferedImage up_Image, BufferedImage down_Image,
-                        int objHSpeed, int objVSpeed, int health) {
-
-        super(objWidth, objHeight, posX, posY, objColour, r_Image, l_Image, up_Image, down_Image);
-        this.defaultHSpeed = objHSpeed;
-        this.defaultVSpeed = objVSpeed;
-        this.objHSpeed = objHSpeed;
-        this.objVSpeed = objVSpeed;
-        this.health = health;
-    }
-
-    /**based on current values of movement calculate the new values for the x,y
-    and save the old x, y to the lastX, lastY respecitvely
+     * Calculation is simple :
+     * Adjust X position by the HSpeed (Note HSpeed sign is used for direction) EG: -Hspeed is left
+     * Adjust Y position by the VSpeed (^Ditto)
      */
     public void calcMovement(){
-        //save the x & y values in the lastX, last Y value spots
 
-        //finally update the values of the x & y using the respective speeds in those directions
+        //Adjust the X/Y values using the respective speeds
         super.setPosX(super.getActualPosX()+objHSpeed);
         super.setPosY( super.getActualPosY()+objVSpeed);
 
-
     }
 
 
-
-    /**
-     * Given an ArrayList draw those objects on the provided 2D Graphics object using pictures if available and if not then using
-     * coloured boxes
-     * @param gg
-     * @param list
-     * @param maps
-     */
-    protected static void drawMovingObjectList(
-
-            Graphics2D gg, ArrayList<MovingObject> list,
-            Map maps, boolean allowPartialOffMap, boolean iscalcmovment)
-
-    {
-
-        //safety check
-        if(list!=null){
-
-            //Loop through each object in the arraylist
-
-            for(MovingObject a: list){
-
-                //only draw the object if it collides with the map to prevent unnecessary clutter
-
-                if(a!=null&&iscalcmovment){
-
-                    MovingObject.drawMovingObject(gg,a,maps,allowPartialOffMap);
-
-                }}
-        }
-    }
 
     protected static void drawMovingObject(Graphics2D gg, MovingObject a, Map maps , boolean allowPartialOffMap){
 
@@ -184,16 +92,16 @@ public class MovingObject extends SolidObject{
             a.setObjHeight(h);
 
         }
+
     }
 
     /**
      * Modified RevisedBorderTest to allow the object to partially but never entirely move off the border
-     * @param john the movingobject that is tested
+     * @param john the MovingObject that is tested
      * @param reverseDirection if true the object will be set to reverse direction
-     * @return if a border was reached
      *
      * //use the given player object and calculate and adjust if the player is going to exceed the borders and then move the player to the
-     *         //oppisite side of the window
+     *  opposite side of the window
      *
      *                      --------Area: B------
      *         (0,0)                                    (x,0)
@@ -201,32 +109,21 @@ public class MovingObject extends SolidObject{
      *  Area: A                                                  Area: D
      *    I                                                      I
      *    I                                                      I
-     *    I                                                      I
-     *    I                                                      I
-     *    I                                                      I
-     *    I                                                      I
      *          (0,y)                                   (x,y)
-     *                               --------Area: C------
-     *
-     *
-     *
+     *                      --------Area: C------
      */
 
-    protected boolean RevisedBorderTest_AllowPartial
+    protected void RevisedBorderTest_AllowPartial
     (MovingObject john, boolean reverseDirection, Map gameMap)
     {
 
-        //Test Area D to determine if a horizonal adjustment is needed
+        //Test Area D
+        // Determine if a horizontal adjustment is needed
 
-        if(inArea_D_AllowPartial(john,gameMap)){
-
-            //System.out.println("Plane.PlaneBorderTest = inArea_D true");
+        if(     inArea_D_AllowPartial   (john,gameMap)     ){
 
             //reverse object motion if reverseDirection is true
-
-            if(reverseDirection){
-                john.setObjHSpeed(-john.getObjHSpeed());
-            }
+            if(reverseDirection)    john.setObjHSpeed(      -john.getObjHSpeed()        );
 
             //loop the layer to the other side of the map
             john.setPosX(
@@ -235,54 +132,14 @@ public class MovingObject extends SolidObject{
 
         }
 
-        //Test Area B to determine if a Vertical adjustment is needed
-
-        if(inArea_B_AllowPartial(john,gameMap)){
-
-            // System.out.println("Plane.PlaneBorderTest = inArea_B true");
-
-            //reverse object motion if reverseDirection is true
-
-            if(reverseDirection){
-                john.setObjVSpeed(-john.getObjVSpeed());
-            }
-
-            john.setPosY(-(john.getObjHeight()));
-
-        }
-
-        //Test Area C to determine if a Vertical adjustment is needed
-
-        if(inArea_C_AllowPartial(john,gameMap)){
-
-            //System.out.println("Plane.PlaneBorderTest = inArea_C true");
-
-            //reverse object motion if reverseDirection is true
-
-            if(reverseDirection){
-                john.setObjVSpeed(-john.getObjVSpeed());
-            }
-
-            //Now adjust the Y position
-            john.setPosY(   gameMap.getMapHeight()  -
-                    (john.getObjHeight())
-            );
-
-        }
-
-
-
-        //Test Area A to determine if a horizontal adjustment is needed
+        //Test Area A
+        // Determine if a horizontal adjustment is needed
 
         if(this.inArea_A_AllowPartial(john,gameMap)){
 
-            // System.out.println("Plane.PlaneBorderTest = inArea_A true");
-
             //reverse object motion if reverseDirection is true
+            if(reverseDirection)    john.setObjHSpeed(      -john.getObjHSpeed()        );
 
-            if(reverseDirection){
-                john.setObjHSpeed(-john.getObjHSpeed());
-            }
             //now loop the player to the other end of the map
             john.setPosX(
                     ( gameMap.getMapWidth())
@@ -293,7 +150,34 @@ public class MovingObject extends SolidObject{
 
 
 
-        return false;
+        //Test Area B
+        // Determine if a Vertical adjustment is needed
+
+        if(inArea_B_AllowPartial(john,gameMap)){
+
+            //reverse object motion if reverseDirection is true
+            if(reverseDirection){       john.setObjVSpeed(      -john.getObjVSpeed()    ); }
+
+            john.setPosY(-(john.getObjHeight()));
+
+        }
+
+
+
+        //Test Area C
+        // Determine if a Vertical adjustment is needed
+
+        if(inArea_C_AllowPartial(john,gameMap)){
+
+            //reverse object motion if reverseDirection is true
+            if(reverseDirection){       john.setObjVSpeed(      -john.getObjVSpeed()    ); }
+
+            //Now adjust the Y position
+            john.setPosY(   gameMap.getMapHeight()  -
+                    (john.getObjHeight())
+            );
+
+        }
 
     }
 
@@ -412,7 +296,7 @@ public class MovingObject extends SolidObject{
      * @return if a border was reached
      *
      * //use the given player object and calculate and adjust if the player is going to exceed the borders and then move the player to the
-     *         //oppisite side of the window
+     *         //opposite side of the window
      *
      *                      --------Area: B------
      *         (0,0)                                    (x,0)
@@ -829,7 +713,7 @@ public class MovingObject extends SolidObject{
 
                 //draw the object moving up if the movement is upwards
                 if(getObjVSpeed()<0){
-                    currentImage = getUp_Image();
+
                     gg.drawImage(
                             super.getUp_Image(),
                             Math.round(super.getPosX()-maps.getViewX()),
@@ -838,7 +722,7 @@ public class MovingObject extends SolidObject{
                 }
                 //Draw the object downards if moving down
                 else if(getObjVSpeed()>0){
-                    currentImage = super.getDown_Image();
+
                     gg.drawImage(
                             super.getDown_Image(),
                             Math.round(super.getPosX()-maps.getViewX()),
@@ -851,14 +735,14 @@ public class MovingObject extends SolidObject{
 
                     //Draw the image moving right
                     if(getObjHSpeed()>0){
-                        currentImage = super.getR_Image();
+
                         gg.drawImage(super.getR_Image(),Math.round(super.getPosX()-maps.getViewX()),
                                 Math.round(super.getPosY()- maps.getViewY()),
                                 super.getObjWidth(), super.getObjHeight(),null);
                     }
                     else if(getObjHSpeed()<0) //Draw the image moving left
                     {
-                        currentImage = super.getL_Image();
+
                         gg.drawImage(super.getL_Image(), Math.round(super.getPosX() - maps.getViewX()),
                                 Math.round(super.getPosY() - maps.getViewY()),
                                 super.getObjWidth(), super.getObjHeight(), null);
@@ -866,8 +750,8 @@ public class MovingObject extends SolidObject{
                 }
 
                 if(getObjVSpeed()==0&&getObjHSpeed()==0){
-                    if(currentImage!=null) {
-                        gg.drawImage(currentImage, Math.round(super.getPosX() - maps.getViewX()),
+                    if(this.getUp_Image()!=null) {
+                        gg.drawImage(this.getUp_Image(), Math.round(super.getPosX() - maps.getViewX()),
                                 Math.round(super.getPosY() - maps.getViewY()),
                                 super.getObjWidth(), super.getObjHeight(), null);
                     }
@@ -911,15 +795,6 @@ public class MovingObject extends SolidObject{
             objHSpeed = abs(defaultHSpeed);
         }
 
-    }
-
-
-    public BufferedImage getCurrentImage() {
-        return currentImage;
-    }
-
-    public void setCurrentImage(BufferedImage currentImage) {
-        this.currentImage = currentImage;
     }
 
     public int getHealth() {

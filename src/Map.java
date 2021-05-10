@@ -18,19 +18,12 @@ public class Map {
     private int viewWidth;//the width of the viewing area, typically going to be the size of the graphical window
     private int viewHeight;//the width of the viewing area, typically going to be the size of the graphical window
 
-
     private int MapWidth;
     private int MapHeight;
 
     //Tiles will be used as the boxes to alow for a consistant grid system to allow for easy building
     private int tileWidth; // the width of the tiles
     private int tileHeight; //the height of the tiles
-
-
-
-    private double Verticial_gravityConstant = 0;
-
-    private double Horizontal_gravityConstant = 0;
 
     /**
      * Dynamic arraylist of all the buildings that are currently built
@@ -42,38 +35,20 @@ public class Map {
     private ArrayList<ArrayList<SolidObject>> tileList = new ArrayList<>();
 
     /**
-     *
-     * @param viewX
-     * @param viewY
-     * @param viewWidth
-     * @param viewHeight
      * @param mapWidth
      * @param mapHeight
      * @param tileWidth
      * @param tileHeight
-     * @param verticial_gravityConstant
-     * @param horizontal_gravityConstant
      */
     public Map(
-            int viewX, int viewY, int viewWidth, int viewHeight,
+               int mapWidth, int mapHeight, int tileWidth, int tileHeight
 
-               int mapWidth, int mapHeight, int tileWidth, int tileHeight,
-
-               double verticial_gravityConstant,
-
-               double horizontal_gravityConstant
     )
     {
-        this.viewX = viewX;
-        this.viewY = viewY;
-        this.viewWidth = viewWidth;
-        this.viewHeight = viewHeight;
         MapWidth = mapWidth;
         MapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
-        Verticial_gravityConstant = verticial_gravityConstant;
-        Horizontal_gravityConstant = horizontal_gravityConstant;
 
         DrawCheckBoard(new Color(202, 211, 203),
                 new Color(156, 156, 156));
@@ -829,22 +804,6 @@ public class Map {
 
     public void setTileList(ArrayList<ArrayList<SolidObject>> tileList) {
         this.tileList = tileList;
-    }
-
-    public double getVerticial_gravityConstant() {
-        return Verticial_gravityConstant;
-    }
-
-    public void setVerticial_gravityConstant(double verticial_gravityConstant) {
-        Verticial_gravityConstant = verticial_gravityConstant;
-    }
-
-    public double getHorizontal_gravityConstant() {
-        return Horizontal_gravityConstant;
-    }
-
-    public void setHorizontal_gravityConstant(double horizontal_gravityConstant) {
-        Horizontal_gravityConstant = horizontal_gravityConstant;
     }
 
 
