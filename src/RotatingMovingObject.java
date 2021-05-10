@@ -1,18 +1,41 @@
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class RotatingMovingObject extends MovingObject{
 
 
-    private int rotation =0;
+    private double rotation =0;
 
     private CoolDownBar Speed;
 
+
+    private ArrayList<RotatingMovingObject> projectileList;
+
+
+    //Simple number used to track distance traveled
+    private CoolDownBar DistanceTraveled;
+
+    /**
+     *
+     * @param posX
+     * @param posY
+     * @param objWidth
+     * @param objHeight
+     * @param defaultHSpeed
+     * @param defaultVSpeed
+     */
     public RotatingMovingObject(int posX, int posY, int objWidth, int objHeight, int defaultHSpeed, int defaultVSpeed) {
         super(posX, posY, objWidth, objHeight, defaultHSpeed, defaultVSpeed);
 
-        Speed = new CoolDownBar( Math.abs(defaultHSpeed)+Math.abs(defaultVSpeed), 0, 1, 1,true);
+        Speed = new CoolDownBar(
+                Math.abs(defaultHSpeed)+Math.abs(defaultVSpeed),
+                0, 2.5, 2.5,true);
+
+        projectileList = new ArrayList<RotatingMovingObject>();
+
+        DistanceTraveled = new CoolDownBar(500, 0, 1, 1, true);
     }
 
 
@@ -31,116 +54,45 @@ public class RotatingMovingObject extends MovingObject{
     @Override
     protected void drawobj(Graphics2D gg, Map maps){
 
-        //default to the regular drawobj if the desired image is null
+        this.calcMovement();
 
-        if(getUp_Image()!=null){
+        //default to the regular drawobj if the desired image is null
 
             drawRotatingObject_outlines(gg, maps);
 
-            int imageX = Math.round(super.getPosX()-maps.getViewX());
-            int imageY = Math.round(super.getPosY()- maps.getViewY());
-
-            /**
-             * I do whatever I want
-
-            AffineTransform old = gg.getTransform();
-
-            int centerofObject_X = (maps.getViewX()-this.getPosX());
-            int centerofObject_Y = (maps.getViewY()-this.getPosY());
-
-
-
-            gg.rotate(          Math.toRadians(safetyRotation_number(180-rotation))  ,
-                    centerofObject_X   , centerofObject_Y );
-
-
-            //reset le rotation tu est olde transformation
-            gg.setTransform(old);
-
-             */
-
-
-            gg.drawImage(
-                    modified_rotateImageByDegrees(super.getUp_Image(),
-
-                            safetyRotation_number(-rotation)
-
-                                    , gg, super.getObjWidth(), super.getObjHeight()),
-                    imageX,
-                    imageY,
-                    super.getObjWidth(), super.getObjHeight(),null);
-
-        }
 
     }
 
-    public BufferedImage modified_rotateImageByDegrees(BufferedImage img, double angle, Graphics2D g2d, int width, int height) {
-
-        double rads = Math.toRadians(angle);
-        double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
-        int w = img.getWidth();
-        int h = img.getHeight();
-        int newWidth = (int) Math.floor(w * cos + h * sin);
-        int newHeight = (int) Math.floor(h * cos + w * sin);
-
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-        g2d = rotated.createGraphics();
-        AffineTransform at = new AffineTransform();
-        at.translate((newWidth - w) / 2, (newHeight - h) / 2);
-
-        int x = w / 2;
-        int y = h / 2;
-
-        at.rotate(rads, x, y);
-        g2d.setTransform(at);
-        g2d.drawImage(img, 0, 0,w,h, null);
-        /**
-        g2d.setColor(Color.RED);
-        g2d.drawRect(0, 0, newWidth - 1, newHeight - 1);
-         */
-
-        g2d.dispose();
-
-        return rotated;
-    }
 
     /**
-     * Yes.. ha ha.. used stackoverflow
-     * https://stackoverflow.com/questions/37758061/rotate-a-buffered-image-in-java
-     * @param img
-     * @param angle
-     * @param g2d
-     * @param width
-     * @param height
-     * @return
+     * Given an ArrayList draw those objects on the provided 2D Graphics object using pictures if available and if not then using
+     * coloured boxes
+     * @param gg
+     * @param list
+     * @param maps
      */
-    public BufferedImage rotateImageByDegrees(BufferedImage img, double angle, Graphics2D g2d, int width, int height) {
+    protected static void drawRotatingMovingObject_Round(
 
-        double rads = Math.toRadians(angle);
-        double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
-        int w = img.getWidth();
-        int h = img.getHeight();
-        int newWidth = (int) Math.floor(w * cos + h * sin);
-        int newHeight = (int) Math.floor(h * cos + w * sin);
+            Graphics2D gg, ArrayList<RotatingMovingObject> list,
+            Map maps, boolean allowPartialOffMap, boolean iscalcmovment)
 
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-        g2d = rotated.createGraphics();
-        AffineTransform at = new AffineTransform();
-        at.translate((newWidth - w) / 2, (newHeight - h) / 2);
+    {
 
-        int x = w / 2;
-        int y = h / 2;
+        //safety check
+        if(list!=null){
 
-        at.rotate(rads, x, y);
-        g2d.setTransform(at);
+            //Loop through each object in the arraylist
 
-        g2d.drawImage(img,0,0,width,height,null);
+            for(RotatingMovingObject a: list){
 
-        g2d.setColor(Color.RED);
-        g2d.drawRect(0, 0, newWidth - 1, newHeight - 1);
-        g2d.dispose();
+                //only draw the object if it collides with the map to prevent unnecessary clutter
 
-        return rotated;
+                if(a!=null&&iscalcmovment){
+
+                    MovingObject.drawMovingObject(gg,a,maps,allowPartialOffMap);
+
+                }}
+        }
     }
 
     /**
@@ -150,23 +102,43 @@ public class RotatingMovingObject extends MovingObject{
      */
     private void drawRotatingObject_outlines(Graphics2D gg, Map maps){
 
-        gg.setColor(new Color(17, 14, 14, 52));
+        double rotate_X =( this.getPosX()
+                + this.getObjWidth()/2)
+                -maps.getViewX();
 
-        gg.fillOval(
-                getPosX()-maps.getViewX(),
-                getPosY()- maps.getViewY(),
-                super.getObjWidth(), super.getObjHeight());
+        double rotate_Y = (this.getPosY()
+                + this.getObjHeight()/2)
+                - maps.getViewY();
 
 
-        gg.setColor(new Color(255,255,255, 82));
+        /**
+         * Draw a rectangle that rotates around the center
+         */
+        AffineTransform old = gg.getTransform();
 
-        int whiteOval_X = ( getPosX()+ (super.getObjWidth()/4))     -   maps.getViewX();
-        int whiteOval_Y = (getPosY() + (super.getObjHeight()/4))      -   maps.getViewY();
+        AffineTransform transform = gg.getTransform();
 
-        whiteOval_X+= (super.getObjHSpeed()*5);
-        whiteOval_Y+= (super.getObjVSpeed()*5) ;
+        transform.rotate(Math.toRadians(-1*this.getRotation()),
+                rotate_X,
+                rotate_Y);
 
-        gg.fillOval(whiteOval_X, whiteOval_Y, super.getObjWidth()/2, super.getObjHeight()/2);
+
+        gg.setTransform(transform);
+
+        if(getUp_Image()!=null){
+            super.setCurrentImage( getUp_Image());
+
+            gg.drawImage(
+                    super.getUp_Image(),
+                    Math.round(super.getPosX()-maps.getViewX()),
+                    Math.round(super.getPosY()- maps.getViewY()),
+                    super.getObjWidth(), super.getObjHeight(),null);
+        }
+        else{
+            super.drawobj(gg,maps);
+        }
+
+        gg.setTransform(old);
 
     }
 
@@ -202,19 +174,59 @@ public class RotatingMovingObject extends MovingObject{
     @Override
     public void calcMovement(){
 
+        getDistanceTraveled().setCurrent_Position(
+                getDistanceTraveled().getCurrent_Position()+(Math.abs(super.getObjHSpeed())+(Math.abs(super.getObjVSpeed())))
+        );
+
+        RotatingMovingObject_calcMovementRotation();
+    }
+
+
+    /**
+     * based on current values of movement calculate the new values for the x,y
+     *
+     * Mother of all this took way too long but i think i figured out why my algebra is always so wierdly wrong:
+     * the Y axis on the computer is inverted to the mathematics one
+     *
+     *
+     *      So what I need to do is calibrate for that:
+     *      Math goes counterclockwise to the inverted computer Axis
+     *
+     *              Sectors:
+     *                   (-V Speed) (Math 180)
+     *                      I
+     *                      I
+     *            IV        I           I
+     *                      I
+     *                      I
+     *(-H Speed)------------+-----------------(+H Speed)
+     *(Math 270)            I                 (Math 90)
+     *                      I
+     *           III        I          II
+     *                      I
+     *                      I
+     *                   (+V Speed) (Math 0)
+     *
+     *OMGASDFASDF;AF THIS TOOK WAAAYYY TOO MUCH TIME TO FIGURE OUT..
+     * THE JAVA CLASS MATH FUNCTION SIN USES RADIANS NOT DEGREES ASDFAFOE4BFJKJF
+     */
+    protected void RotatingMovingObject_calcMovementRotation(){
+
         //Side A
         super.setObjHSpeed(
-              Speed.getCurrent_Position() * Math.sin(Math.toRadians(rotation))
+                Speed.getCurrent_Position() * Math.sin(Math.toRadians(rotation))
         );
 
         super.setObjVSpeed(
-               Speed.getCurrent_Position() * Math.cos(Math.toRadians(rotation))
+                Speed.getCurrent_Position() * Math.cos(Math.toRadians(rotation))
         );
 
 
         //finally update the values of the x & y using the respective speeds in those directions
         super.setPosX(      super.getActualPosX()     +    super.getObjHSpeed()    );
         super.setPosY(      super.getActualPosY()    +   super.getObjVSpeed()   );
+
+
 
     }
 
@@ -229,8 +241,8 @@ public class RotatingMovingObject extends MovingObject{
 
     }
 
-    private int safetyRotation_number(int number){
-        int result = number;
+    private double safetyRotation_number(double number){
+        double result = number;
 
         if(number < 0){
             result = 360 + number;
@@ -243,11 +255,11 @@ public class RotatingMovingObject extends MovingObject{
         return result;
     }
 
-    public int getRotation() {
+    public double getRotation() {
         return rotation;
     }
 
-    public void setRotation(int rotation) {
+    public void setRotation(double rotation) {
         this.rotation = rotation;
 
 
@@ -264,4 +276,20 @@ public class RotatingMovingObject extends MovingObject{
         Speed = speed;
     }
 
+
+    public ArrayList<RotatingMovingObject> getProjectileList() {
+        return projectileList;
+    }
+
+    public void setProjectileList(ArrayList<RotatingMovingObject> projectileList) {
+        this.projectileList = projectileList;
+    }
+
+    public CoolDownBar getDistanceTraveled() {
+        return DistanceTraveled;
+    }
+
+    public void setDistanceTraveled(CoolDownBar distanceTraveled) {
+        DistanceTraveled = distanceTraveled;
+    }
 }

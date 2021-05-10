@@ -1,9 +1,9 @@
-objWidth=50
-objHeight=50
+objWidth=100
+objHeight=100
 HSpeed = 0
 VSpeed= 0.1
-UpModel=moon.png
-DownModel=moon.png
-LeftModel=moon.png
-RightModel=moon.png
+UpModel=shimmer_sun.png
+DownModel=shimmer_sun.png
+LeftModel=shimmer_sun.png
+RightModel=shimmer_sun.png
 isSolid=true

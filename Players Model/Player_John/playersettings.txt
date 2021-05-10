@@ -4,8 +4,8 @@ buttonLeft=65
 buttonRight=68
 buttonFire=82
 buttonAltFire=81
-objWidth=85
-objHeight=135
+objWidth=100
+objHeight=280
 VSpeed=10
 HSpeed=20
 health=3
@@ -18,11 +18,7 @@ FIRECOOLDOWN=1
 ALTFIRECOOLDOWN=1
 DefaultProjectileHeight=1
 DefaultProjectileWidth=1
-UpModel=battleship_down.png
-DownModel=battleship_down.png
-LeftModel=battleship_down.png
-RightModel=battleship_down.png
-
+UpModel=steampunk_.png
 
 
 

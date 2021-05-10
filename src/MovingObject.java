@@ -23,6 +23,8 @@ public class MovingObject extends SolidObject{
 
     private BufferedImage currentImage = null;
 
+
+
     //More logical constructor only asking for some values
     //Full constructor that on construction sets all values for the player
 
@@ -815,6 +817,9 @@ public class MovingObject extends SolidObject{
 
     @Override
     protected void drawobj(Graphics2D gg, Map maps){
+
+        //Calculate motion of the object
+        this.calcMovement();
 
             //default to the regular drawobj if the desired image is not initalized
 

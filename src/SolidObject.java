@@ -138,6 +138,16 @@ public class SolidObject {
                 getPosX()-maps.getViewX(),
                 getPosY()- maps.getViewY(),
                 objWidth, objHeight);
+
+
+        if(this.getUp_Image()!=null){
+
+            gg.drawImage(
+                    getUp_Image(),
+                    Math.round(getPosX()-maps.getViewX()),
+                    Math.round(getPosY()- maps.getViewY()),
+                    getObjWidth(), getObjHeight(),null);
+        }
     }
 
 

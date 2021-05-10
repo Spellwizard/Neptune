@@ -27,6 +27,7 @@ public class Map {
     private int tileHeight; //the height of the tiles
 
 
+
     private double Verticial_gravityConstant = 0;
 
     private double Horizontal_gravityConstant = 0;
@@ -34,7 +35,7 @@ public class Map {
     /**
      * Dynamic arraylist of all the buildings that are currently built
      */
-    private ArrayList<MovingObject> backgroundTextureObjects  = new ArrayList<>();
+    private ArrayList<RotatingMovingObject> backgroundTextureObjects  = new ArrayList<>();
 
 
     //2D arraylist of the tiles
@@ -74,11 +75,13 @@ public class Map {
         Verticial_gravityConstant = verticial_gravityConstant;
         Horizontal_gravityConstant = horizontal_gravityConstant;
 
-        initTiles(new Color(202, 211, 203),
+        DrawCheckBoard(new Color(202, 211, 203),
                 new Color(156, 156, 156));
 
+        loopSuperTile(5,5,0,5,0,5,155,100);
 
-        backgroundTextureObjects = this.initBackgroundTextureObjects(25,1,1,5);
+
+        backgroundTextureObjects = this.initBackgroundTextureObjects(1,1,1,5);
 
     }
 
@@ -99,7 +102,7 @@ public class Map {
         this.updatePosition(target);
     }
 
-    private void initTiles(Color white, Color notWhite){
+    private void DrawCheckBoard(Color white, Color notWhite){
 
             //calculate the number of rows / columns by finding out how may of the size given fit
             int rows = MapWidth/tileWidth;
@@ -160,10 +163,116 @@ public class Map {
                 }
 
             }
+        }
 
-           // textureBoardWhole();
+    /**
+     * Draw a 'super tile' tiles:
+     * use tiles as a single value and draw X tiles wide and X tiles tall
+     * then within each 'super tile' draw a single color
+     *
+     *
+     * @param SuperWidth - the width of the 'super tile'
+     * @param SuperHeight - the height of the 'super tile'
+     * @param Color_R the integer value to set the Red color
+     * @param variance_R the Red variance (please not on first making, please make sure variance + Color_R <=255..)
+     * @param Color_G the integer value to set the Green color
+     * @param variance_G the Green variance (please not on first making, please make sure variance + Color_R <=255..)
+     * @param Color_B the integer value to set the Green color
+     * @param variance_B the Green variance (please not on first making, please make sure variance + Color_R <=255..)
+     *
+     * assumptions made: superwidth + superheight are above 0 and are odd numbers
+     *                   and the rest are =>0
+     *
+     *                   additionally assuming the board is even
+     *
+     *
+     */
+    private void loopSuperTile(
+            int SuperWidth, int SuperHeight,
+            int Color_R, int variance_R,
+            int Color_G, int variance_G,
+            int Color_B, int variance_B
+    ){
+
+        SolidObject defaultTile = new SolidObject(0,0,tileWidth,tileHeight,Color.black);
+
+        FileReader file = new FileReader("Buildings\\Ocean\\settings.txt");
+        file.setFileFolder("Buildings\\Ocean\\");
+
+        OverridingValuesClass.OverrideSolidObject(defaultTile,file);
+
+
+        /**
+         * Loop through each super tile and within each super tile loop through to set colors and images appropriately
+         */
+
+        for( int Row =0; Row<tileList.size(); Row+=SuperWidth){
+
+            for(int Col = 0; Col<tileList.get(Row).size(); Col+= SuperHeight){
+
+                Random r = new Random();
+
+                Color c = new Color(
+                        Color_R + (r.nextInt(variance_R)),
+                        Color_G + (r.nextInt(variance_G)),
+                        Color_B + (r.nextInt(variance_B))
+                );
+
+                int rowMax = Row+SuperWidth;
+
+                int colMax = Col+SuperHeight;
+
+                for (int R = Row; R < rowMax; R++) {
+
+                    for (int C = Col; C < colMax; C++) {
+
+                        tileList.get(R).get(C).setObjColour(c);
+
+
+                        int adjustedinternalRow = rowMax-R;
+                        int adjustedinternalCol = colMax - C;
+
+                        int MidSuperTileWidth = (SuperWidth+1)/2;
+                        if(MidSuperTileWidth !=(int)MidSuperTileWidth){
+                            MidSuperTileWidth=(int) MidSuperTileWidth;
+                            MidSuperTileWidth--;
+                        }
+
+                        int MidSuperTileHeight = (SuperHeight+1)/2;
+                        if(MidSuperTileHeight !=(int)MidSuperTileHeight){
+                            MidSuperTileHeight=(int) MidSuperTileHeight;
+                            MidSuperTileHeight--;
+                        }
+
+                        int Random = r.nextInt(100);
+
+
+                        if(Random>25) {
+
+                            if (adjustedinternalRow == MidSuperTileWidth) {
+                                tileList.get(R).get(C).setUp_Image(defaultTile.getDown_Image());
+                            } else if (adjustedinternalCol == MidSuperTileHeight) {
+                                tileList.get(R).get(C).setUp_Image(defaultTile.getDown_Image());
+                            }
+                            else
+                            {
+                                if(Random>50){
+                                    tileList.get(R).get(C).setUp_Image(defaultTile.getDown_Image());
+                                }
+                            }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
 
         }
+
 
 
         /**
@@ -200,601 +309,8 @@ public class Map {
 
         }
 
-    /**
-     * Add some texture to the background by systemically going
-     * through and randomly colouring various positions
-     */
-    private void textureBoardWhole(){
-        //random number object to call when i want a random number
-        Random rn = new Random();
-        Color c = Color.cyan;
 
-        //Lets start by going through and randomly select values within the board size and change their colours randomly
 
-        int number_of_texturedBlocks= (tileList.size()*tileList.get(0).size());
-
-        int skyboundMax = (this.getMapHeight()/2) +     (this.getMapHeight()/3)           ;
-
-        //lets just loop through down based on the number of random spots to select
-        for (ArrayList<SolidObject> RowList: tileList){
-
-            for(SolidObject Tile: RowList) {
-
-                //just select a random y and random x within the range
-
-                int random_X = rn.nextInt(tileList.size());
-                int random_Y = rn.nextInt(tileList.get(0).size());
-
-                //call the background Preset to set the colour based on the Y position
-
-                Tile.setObjColour(
-                        background_Preset_OCEANSEA(        Tile.getPosY()      ));
-
-            }
-        }
-
-    }
-
-    /** PRESET 1 (TEST)
-     * Using a inbuilt system, return based on a y positional the background color to use within a variance
-     * @param Pos_y
-     * @return
-     */
-    private Color background_Preset_1(int Pos_y){
-
-        Random rn = new Random();
-
-        int Color_R=0;
-        int Color_G=0;
-        int Color_B=0;
-
-        //need to convert the Y position to a usable percentage of the map:
-        //EG: if the map height is 100 and y = 50 then it should be at 50% of the map;
-        int percentage = (100*Pos_y)/getMapHeight();
-
-        //get an invertaged percentaged so that can work backwards too - used to set a gradient brighter going to y = 0
-        int inverted_percentage = 100 - percentage;
-
-
-        //random variance to use to help tell apart otherwise same colored tiles
-        int variance = 2;
-
-
-        /**
-         * BLUE SKY 	135, 206, 235
-         * GRADIENT BLUE SKY TO WHITE
-         * WHITE 255, 255, 255
-         * OCEAN BLUE 	0, 0, 255
-         * LIGHT GREEN 144, 238, 144
-         * DARK GREEN 	34, 139, 34
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-        //BLUE SKY 135, 206, 235
-        if(percentage < 55){
-            Color_R = 50        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_G = 100        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_B = 235        +       rn.nextInt(     variance    +   inverted_percentage        );
-        }
-
-            else
-                //WHITE 255, 255, 255
-                    if(percentage < 56 ){
-                        Color_R = 255        +       rn.nextInt(     variance            );
-                        Color_G = 255        +       rn.nextInt(     variance            );
-                        Color_B = 255        +       rn.nextInt(     variance            );
-            }
-
-                else
-                    //OCEAN BLUE 	0, 0, 255
-                        if(percentage < 65){
-                            Color_R = 0         +       rn.nextInt(     variance    +   inverted_percentage        );
-                            Color_G = 0         +       rn.nextInt(     variance    +   inverted_percentage        );
-                            Color_B = 255         +       rn.nextInt(     variance    +   inverted_percentage        );
-                }
-
-                    else
-                        //LIGHT GREEN 144, 238, 144
-                        if(percentage < 73){
-                            Color_R = 144        +       rn.nextInt(     variance    +   inverted_percentage        );
-                            Color_G = 238        +       rn.nextInt(     variance    +   inverted_percentage        );
-                            Color_B = 144        +       rn.nextInt(     variance    +   inverted_percentage        );
-                        }
-
-                        else
-                            //DARK GREEN 		34, 139, 34
-                            {
-                                Color_R = 34        +       rn.nextInt(     variance    +   inverted_percentage        );
-                                Color_G = 139        +       rn.nextInt(     variance    +   inverted_percentage        );
-                                Color_B = 34        +       rn.nextInt(     variance    +   inverted_percentage        );
-                            }
-
-
-                           //Need to safety check no number is above 255 or below 0;
-        //CHECK FOR BELOW ZEROS:
-
-        if(Color_R < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_R = -1*Color_R;
-        }
-
-        if(Color_G < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_G = -1*Color_G;
-        }
-
-        if(Color_B < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_B = -1*Color_B;
-        }
-
-
-
-        //CHECK FOR ABOVE 255, SUBTRACT OUT THE DIFFERENCE THEN SUBTRACT THAT FROM 255: EG
-        //265 : 265 - 255 = 10; 255 - 10 = 245; ANSWER WOULD BE 245
-        int differnce = 0;
-
-        if(Color_R > 255){
-            differnce = Color_R - 255;
-            Color_R = 255 - differnce;
-        }
-
-        if(Color_G > 255){
-            differnce = Color_G - 255;
-            Color_G = 255 - differnce;
-        }
-
-        if(Color_B > 255){
-            differnce = Color_B - 255;
-            Color_B = 255 - differnce;
-        }
-
-        return new Color(Color_R,Color_G,Color_B);
-    }
-
-
-    /** SPACE
-     * Using a inbuilt system, return based on a y positional the background color to use within a variance
-     * @param Pos_y
-     * @return
-     */
-    private Color background_Preset_SPACE(int Pos_y){
-
-        Random rn = new Random();
-
-        int Color_R=0;
-        int Color_G=0;
-        int Color_B=0;
-
-        //need to convert the Y position to a usable percentage of the map:
-        //EG: if the map height is 100 and y = 50 then it should be at 50% of the map;
-        int percentage = (100*Pos_y)/getMapHeight();
-
-        //get an invertaged percentaged so that can work backwards too - used to set a gradient brighter going to y = 0
-        int inverted_percentage = 100 - percentage;
-
-
-        //random variance to use to help tell apart otherwise same colored tiles
-        int variance = 1;
-
-        /**
-         * BACKGROUND PLAN:
-         *
-         * VARIOUS BASE COLOURS FROM BLUE (100%) TO BLACK  (0%)
-         *
-         *
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-        //TOP OF THE MAP
-
-        //
-        if(percentage < 10){
-            Color_R = 0;
-            Color_G = 0;
-            Color_B =  10+              rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 20){
-            Color_R = 0        ;
-            Color_G = 0        ;
-            Color_B = 40        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 30){
-            Color_R = 0        +       rn.nextInt(     variance            );
-            Color_G = 0;
-            Color_B =  76       +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 40){
-            Color_R = 0        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0  ;
-            Color_B = 114        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 50){
-            Color_R = 0        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0     ;
-            Color_B = 152        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 60){
-            Color_R = 20        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0     ;
-            Color_B = 200        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 70){
-            Color_R = 5        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0;
-            Color_B = 255        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        else if(percentage < 80){
-            Color_R = 200        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_G = 0      ;
-            Color_B = 15        +       rn.nextInt(     variance    +   inverted_percentage        );
-        }
-
-        else if(percentage < 90){
-            Color_R = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_G = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_B = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-        }
-
-        else{
-            Color_R = 200        +       rn.nextInt(     variance  +inverted_percentage );
-            Color_G = 230        +       rn.nextInt(     variance  +inverted_percentage );
-            Color_B = 255        +       rn.nextInt(     variance  +inverted_percentage  );
-        }
-
-        //BOTTOM OF THE MAP
-
-
-        //Need to safety check no number is above 255 or below 0;
-        //CHECK FOR BELOW ZEROS:
-
-        if(Color_R < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_R = -1*Color_R;
-        }
-
-        if(Color_G < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_G = -1*Color_G;
-        }
-
-        if(Color_B < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_B = -1*Color_B;
-        }
-
-
-
-        //CHECK FOR ABOVE 255, SUBTRACT OUT THE DIFFERENCE THEN SUBTRACT THAT FROM 255: EG
-        //265 : 265 - 255 = 10; 255 - 10 = 245; ANSWER WOULD BE 245
-        int differnce = 0;
-
-        if(Color_R > 255){
-            differnce = Color_R - 255;
-            Color_R = 255 - differnce;
-        }
-
-        if(Color_G > 255){
-            differnce = Color_G - 255;
-            Color_G = 255 - differnce;
-        }
-
-        if(Color_B > 255){
-            differnce = Color_B - 255;
-            Color_B = 255 - differnce;
-        }
-
-        return new Color(Color_R,Color_G,Color_B);
-    }
-
-    /** SPACE
-     * Using a inbuilt system, return based on a y positional the background color to use within a variance
-     * @param Pos_y
-     * @return
-     */
-    private Color background_Preset_OCEANSEA(int Pos_y){
-
-        Random rn = new Random();
-
-        int Color_R=0;
-        int Color_G=0;
-        int Color_B=0;
-
-        //need to convert the Y position to a usable percentage of the map:
-        //EG: if the map height is 100 and y = 50 then it should be at 50% of the map;
-        int percentage = (100*Pos_y)/getMapHeight();
-
-        //get an invertaged percentaged so that can work backwards too - used to set a gradient brighter going to y = 0
-        int inverted_percentage = 100 - percentage;
-
-
-        //random variance to use to help tell apart otherwise same colored tiles
-        int variance = 1;
-
-        /**
-         * BACKGROUND PLAN:
-         *
-         * VARIOUS BASE COLOURS FROM BLUE (100%) TO BLACK  (0%)
-         *
-         *
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-        //TOP OF THE MAP
-
-
-            Color_R = rn.nextInt(     20      );
-            Color_G = 0;
-            Color_B =                rn.nextInt(     255      );
-
-
-
-
-        //BOTTOM OF THE MAP
-
-
-        //Need to safety check no number is above 255 or below 0;
-        //CHECK FOR BELOW ZEROS:
-
-        if(Color_R < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_R = -1*Color_R;
-        }
-
-        if(Color_G < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_G = -1*Color_G;
-        }
-
-        if(Color_B < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_B = -1*Color_B;
-        }
-
-
-
-        //CHECK FOR ABOVE 255, SUBTRACT OUT THE DIFFERENCE THEN SUBTRACT THAT FROM 255: EG
-        //265 : 265 - 255 = 10; 255 - 10 = 245; ANSWER WOULD BE 245
-        int differnce = 0;
-
-        if(Color_R > 255){
-            differnce = Color_R - 255;
-            Color_R = 255 - differnce;
-        }
-
-        if(Color_G > 255){
-            differnce = Color_G - 255;
-            Color_G = 255 - differnce;
-        }
-
-        if(Color_B > 255){
-            differnce = Color_B - 255;
-            Color_B = 255 - differnce;
-        }
-
-        return new Color(Color_R,Color_G,Color_B);
-    }
-
-
-    /** SPACE w/ Planet
-     * Using a inbuilt system, return based on a y positional the background color to use within a variance
-     * @param Pos_y
-     * @return
-     */
-    private Color background_Preset_SPACEWithPlanet(int Pos_y){
-
-        Random rn = new Random();
-
-        int Color_R=0;
-        int Color_G=0;
-        int Color_B=0;
-
-        //need to convert the Y position to a usable percentage of the map:
-        //EG: if the map height is 100 and y = 50 then it should be at 50% of the map;
-        int percentage = (100*Pos_y)/getMapHeight();
-
-        //get an invertaged percentaged so that can work backwards too - used to set a gradient brighter going to y = 0
-        int inverted_percentage = 100 - percentage;
-
-
-        //random variance to use to help tell apart otherwise same colored tiles
-        int variance = 1;
-
-        /**
-         * BACKGROUND PLAN:
-         *
-         * VARIOUS BASE COLOURS FROM BLUE (100%) TO BLACK  (0%)
-         *
-         *
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-        //TOP OF THE MAP
-
-        //ONE BLACK SKY
-        if(percentage < 5){
-            Color_R = 0;
-            Color_G = 0;
-            Color_B =  10+              rn.nextInt(     variance    +   percentage        );
-        }
-
-        //TWO VERY DARK BLUE SPACE /SKY
-        else if(percentage < 10){
-            Color_R = 0        ;
-            Color_G = 0        ;
-            Color_B = 40        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        //THREE DARK ISH BLUE SKY
-        else if(percentage < 15){
-            Color_R = 0        +       rn.nextInt(     variance            );
-            Color_G = 0;
-            Color_B =  76       +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        //FOUR DARK SORTA BLUE SKY
-        else if(percentage < 20){
-            Color_R = 0        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0  ;
-            Color_B = 114        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        //FIVE SECOND BLUE BEFORE HORIZON
-        else if(percentage < 25){
-            Color_R = 0        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0     ;
-            Color_B = 152        +       rn.nextInt(     variance    +   percentage *2       );
-        }
-
-        //SIX LAST BLUE BEFORE HORIZON
-        else if(percentage < 30){
-            Color_R = 20        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0     ;
-            Color_B = 200        +       rn.nextInt(     variance    +   percentage        );
-        }
-
-        //SEVEN RED HORIZON
-        else if(percentage < 35){
-            Color_R = 5        +       rn.nextInt(     variance    +   percentage        );
-            Color_G = 0;
-            Color_B = 255        +       rn.nextInt(     variance    +   percentage *2       );
-        }
-
-        //EIGHT WHITE HORIZON
-        else if(percentage < 40){
-            Color_R = 200        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_G = 0      ;
-            Color_B = 15        +       rn.nextInt(     variance    +   inverted_percentage        );
-        }
-
-        //NINE Blue Sky
-        else if(percentage < 42){
-            Color_R = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_G = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-            Color_B = 210        +       rn.nextInt(     variance    +   inverted_percentage        );
-        }
-
-        else
-            //TEN
-        if(percentage <44){
-            Color_R = 200        +       rn.nextInt(     variance  +inverted_percentage );
-            Color_G = 230        +       rn.nextInt(     variance  +inverted_percentage );
-            Color_B = 255        +       rn.nextInt(     variance  +inverted_percentage  );
-        }
-
-        //BOTTOM OF THE SPACE MAP
-
-
-        /**
-         * PLANET >50%
-         *
-         * BLUE SKY 	135, 206, 235
-         * GRADIENT BLUE SKY TO WHITE
-         * WHITE 255, 255, 255
-         * OCEAN BLUE 	0, 0, 255
-         * LIGHT GREEN 144, 238, 144
-         * DARK GREEN 	34, 139, 34
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-        //BLUE SKY 135, 206, 235
-        else if(percentage < 78){
-            Color_R = 50 +        rn.nextInt(        inverted_percentage        )       ;
-            Color_G = 100;
-            Color_B = 235        ;
-        }
-
-        else
-            //WHITE 255, 255, 255
-            if(percentage < 79 ){
-                Color_R = 255        +       rn.nextInt(     variance            );
-                Color_G = 255        +       rn.nextInt(     variance            );
-                Color_B = 255        +       rn.nextInt(     variance            );
-            }
-
-            else
-                //OCEAN BLUE 	0, 0, 255
-                if(percentage < 80){
-                    Color_R = 0;
-                    Color_G = 0;
-                    Color_B = 225        ;
-                }
-
-                else
-                    //LIGHT GREEN 144, 238, 144
-                    if(percentage < 83){
-                        Color_R = 144        +       rn.nextInt(     variance    +   inverted_percentage        );
-                        Color_G = 238        +       rn.nextInt(     variance    +   inverted_percentage        );
-                        Color_B = 144        +       rn.nextInt(     variance    +   inverted_percentage        );
-                    }
-
-                    else
-                    //DARK GREEN 		34, 139, 34
-                    {
-                        Color_R = 34        +       rn.nextInt(     variance    +   inverted_percentage        );
-                        Color_G = 139        +       rn.nextInt(     variance    +   inverted_percentage        );
-                        Color_B = 34        +       rn.nextInt(     variance    +   inverted_percentage        );
-                    }
-
-
-        //Need to safety check no number is above 255 or below 0;
-        //CHECK FOR BELOW ZEROS:
-
-        if(Color_R < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_R = -1*Color_R;
-        }
-
-        if(Color_G < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_G = -1*Color_G;
-        }
-
-        if(Color_B < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_B = -1*Color_B;
-        }
-
-
-
-        //CHECK FOR ABOVE 255, SUBTRACT OUT THE DIFFERENCE THEN SUBTRACT THAT FROM 255: EG
-        //265 : 265 - 255 = 10; 255 - 10 = 245; ANSWER WOULD BE 245
-        int differnce = 0;
-
-        if(Color_R > 255){
-            differnce = Color_R - 255;
-            Color_R = 255 - differnce;
-        }
-
-        if(Color_G > 255){
-            differnce = Color_G - 255;
-            Color_G = 255 - differnce;
-        }
-
-        if(Color_B > 255){
-            differnce = Color_B - 255;
-            Color_B = 255 - differnce;
-        }
-
-        return new Color(Color_R,Color_G,Color_B);
-    }
 
 
     /**
@@ -814,50 +330,41 @@ public class Map {
 
     }
 
-    /**
-     * Using inbuilt presets return an arrayList of background objects littered on the map to provide texture;
-     * Really only the preset Space - planet should call this function but can be retooled for other things later on
-     *
-     * specifically
-     * a stationary moon + planets
-     * clouds
-     *
-     * buildings (windmills, barns, crops(?))
-     *
-     * @return a populated arraylist with all the needed info
-     */
-    protected ArrayList<MovingObject> initBackgroundTextureObjects(
-            int amtOfObjectsToMake_Clouds,
-            int amtOfObjectsToMake_Moon,
-            int amtOfObjectsToMake_Mars,
-            int amtOfObjectsToMake_Barn
-    ) {
-        ArrayList<MovingObject> returnList = new ArrayList<>();
 
-        MovingObject defaultObject = null;
-
-        Random rn = new Random();
-        int x = 0;
-        int y = 0;
-
+    private void initBackgroundTextureObjects_Clouds(ArrayList<RotatingMovingObject> returnList, int amtOfObjectsToMake_Clouds){
         /**
          *CLOUDS
          */
+        Random rn = new Random();
 
-        defaultObject = initBackgroundTextureObjects_DefaultObject("Fish\\");
+        RotatingMovingObject defaultObject = initBackgroundTextureObjects_RotatingMovingObject("Clouds\\");
 
         //now over write whatever needs to be done and loop however many times to add to the arraylist
         for (int i = 0; i < amtOfObjectsToMake_Clouds; i++) {
-            MovingObject objectOverwrittenaLot = new MovingObject(0, 0, 0, 0, 0, 0);
+            RotatingMovingObject objectOverwrittenaLot = new RotatingMovingObject(0, 0, 0, 0, 0, 0);
 
-            OverridingValuesClass.OverrideMovingObject(objectOverwrittenaLot, defaultObject);
+            objectOverwrittenaLot.setObjHSpeed(0.1);
+
+            int number = rn.nextInt(100);
+            if(number<25){
+                objectOverwrittenaLot.setUp_Image(defaultObject.getUp_Image());
+            }
+            else if(number<50){
+                objectOverwrittenaLot.setUp_Image(defaultObject.getDown_Image());
+            }
+            else if(number<75){
+                objectOverwrittenaLot.setUp_Image(defaultObject.getL_Image());
+            }
+            else{
+                objectOverwrittenaLot.setUp_Image(defaultObject.getR_Image());
+            }
 
             //random.nextInt(max - min + 1) + min
             //randomly set the x / y positions within certain values
 
-            x = rn.nextInt(this.getMapWidth() - 1);
+            int x = rn.nextInt(this.getMapWidth() - 1);
 
-            y = rn.nextInt(this.getMapHeight() / 3)
+            int y = rn.nextInt(this.getMapHeight() / 3)
                     +
                     this.getMapHeight() / 3;
 
@@ -872,11 +379,40 @@ public class Map {
 
             returnList.add(objectOverwrittenaLot);
 
-
         }
         /**
          * END OF CLOUDS
          */
+    }
+
+    /**
+     * Using inbuilt presets return an arrayList of background objects littered on the map to provide texture;
+     * Really only the preset Space - planet should call this function but can be retooled for other things later on
+     *
+     * specifically
+     * a stationary moon + planets
+     * clouds
+     *
+     * buildings (windmills, barns, crops(?))
+     *
+     * @return a populated arraylist with all the needed info
+     */
+    protected ArrayList<RotatingMovingObject> initBackgroundTextureObjects(
+            int amtOfObjectsToMake_Clouds,
+            int amtOfObjectsToMake_Moon,
+            int amtOfObjectsToMake_Mars,
+            int amtOfObjectsToMake_Barn
+    ) {
+        ArrayList<RotatingMovingObject> returnList = new ArrayList<>();
+
+        RotatingMovingObject defaultObject = null;
+
+        Random rn = new Random();
+        int x = 0;
+        int y = 0;
+
+        initBackgroundTextureObjects_Clouds(returnList, amtOfObjectsToMake_Clouds);
+
 
 
         /**
@@ -885,12 +421,12 @@ public class Map {
          * MOON
          */
 
-        defaultObject = initBackgroundTextureObjects_DefaultObject("Moon\\");
+        defaultObject = initBackgroundTextureObjects_RotatingMovingObject("Moon\\");
 
         for(int JUT = 0; JUT<amtOfObjectsToMake_Moon;JUT++) {
         //now over write whatever needs to be done and loop however many times to add to the arraylist
 
-        MovingObject objectOverwrittenaLot = new MovingObject(0, 0, 0, 0, 0, 0);
+        RotatingMovingObject objectOverwrittenaLot = new RotatingMovingObject(0, 0, 0, 0, 0, 0);
 
         OverridingValuesClass.OverrideMovingObject(objectOverwrittenaLot, defaultObject);
 
@@ -919,11 +455,11 @@ public class Map {
          * MARS
          */
 
-        defaultObject = initBackgroundTextureObjects_DefaultObject("Mars\\");
+        defaultObject = initBackgroundTextureObjects_RotatingMovingObject("Mars\\");
 
         //now over write whatever needs to be done and loop however many times to add to the arraylist
         for(int JUT = 0; JUT<amtOfObjectsToMake_Mars;JUT++) {
-            MovingObject objectOverwrittenaLot = new MovingObject(0, 0, 0, 0, 0, 0);
+            RotatingMovingObject objectOverwrittenaLot = new RotatingMovingObject(0, 0, 0, 0, 0, 0);
 
             OverridingValuesClass.OverrideMovingObject(objectOverwrittenaLot, defaultObject);
 
@@ -952,12 +488,12 @@ public class Map {
          * BARNS
          */
 
-        defaultObject = initBackgroundTextureObjects_DefaultObject("Barn\\");
+        defaultObject = initBackgroundTextureObjects_RotatingMovingObject("Barn\\");
 
         //now over write whatever needs to be done and loop however many times to add to the arraylist
         for(int JUT = 0; JUT<amtOfObjectsToMake_Barn;JUT++) {
-            MovingObject objectOverwrittenaLot =
-                    new MovingObject(0, 0, 0, 0, 0, 0);
+            RotatingMovingObject objectOverwrittenaLot =
+                    new RotatingMovingObject(0, 0, 0, 0, 0, 0);
 
             OverridingValuesClass.OverrideMovingObject(objectOverwrittenaLot, defaultObject);
 
@@ -986,7 +522,7 @@ public class Map {
     }
 
 
-    protected MovingObject initBackgroundTextureObjects_DefaultObject(String fileType){
+    protected MovingObject initBackgroundTextureObjects_MovingObject(String fileType){
 
         MovingObject defaultObject = new MovingObject(0,0,0,0,0,0);
 
@@ -1005,90 +541,23 @@ public class Map {
         return defaultObject;
     }
 
+    protected RotatingMovingObject initBackgroundTextureObjects_RotatingMovingObject(String fileType){
 
-    /**MARS
-     * Using a inbuilt system, return based on a y positional the background color to use within a variance
-     * @param Pos_y
-     * @return
-     */
-    private Color background_Preset_MARS(int Pos_y){
+        RotatingMovingObject defaultObject = new RotatingMovingObject(0,0,0,0,0,0);
 
-        Random rn = new Random();
+        FileReader file = new FileReader("");
 
-        int Color_R=0;
-        int Color_G=0;
-        int Color_B=0;
+        String fileName = "Settings.txt";
 
-        //need to convert the Y position to a usable percentage of the map:
-        //EG: if the map height is 100 and y = 50 then it should be at 50% of the map;
-        int percentage = (100*Pos_y)/getMapHeight();
+        //Buildings
+        String fileFolder="Buildings\\";
 
-        //invert the percentage so that the calculations running off it invert
-        percentage =100 - percentage;
+        file = new FileReader("Buildings\\"+fileType+"Settings.txt");
+        file.setFileFolder("Buildings\\"+fileType);
+        //OVERRIGHT BASIC VALUES USING THE FILE READER + GET IMAGES
+        OverridingValuesClass.OverrideMovingObject(defaultObject,file);
 
-        //random variance to use to help tell apart otherwise same colored tiles
-        int variance = 127;
-
-
-        /**
-         * MARS
-         *
-         * ORANGE: 	255, 165, 0
-         *
-         * BLACK 0, 0, 0
-         */
-
-        //Need to if statement through each of the colors and decide which is the correct colour to set
-        //then add a minor variance to keep things fun and return that as the resulting colour
-
-
-            Color_R = 255       +       rn.nextInt(variance     +       (percentage)      );
-            Color_G = 165       +       rn.nextInt(variance     +       (percentage)      );
-            Color_B = 0         +       rn.nextInt(variance     +       (percentage)      );
-
-
-        //Need to safety check no number is above 255 or below 0;
-        //CHECK FOR BELOW ZEROS:
-
-        if(Color_R < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_R = -1*Color_R;
-        }
-
-        if(Color_G < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_G = -1*Color_G;
-        }
-
-        if(Color_B < 0){
-            //rather than invent the wheel, just invert it since less than 0 is negative, then it will be above 0
-            Color_B = -1*Color_B;
-        }
-
-
-
-        //CHECK FOR ABOVE 255, SUBTRACT OUT THE DIFFERENCE THEN SUBTRACT THAT FROM 255: EG
-        //265 : 265 - 255 = 10; 255 - 10 = 245; ANSWER WOULD BE 245
-        int differnce = 0;
-
-        if(Color_R > 255){
-            differnce = Color_R - 255;
-            Color_R = 255 - differnce;
-        }
-
-        if(Color_G > 255){
-            differnce = Color_G - 255;
-            Color_G = 255 - differnce;
-        }
-
-        if(Color_B > 255){
-            differnce = Color_B - 255;
-            Color_B = 255 - differnce;
-        }
-
-        Color result  = new Color(Color_R,Color_G,Color_B);
-
-        return result;
+        return defaultObject;
     }
 
 
@@ -1112,15 +581,12 @@ public class Map {
      * This function should only be called by the paint class as anyone else may cause an endless loop
      */
     public void drawCheckerboard(Graphics2D gg) {
-        gg.setBackground(Color.red);
 
         for(ArrayList<SolidObject> list: tileList){
 
             for(SolidObject john: list){
 
-
-                gg.setColor(john.getObjColour());
-
+                if(isWithinMapSight(john))
                 john.drawobj(gg,this);
 
             }
@@ -1308,8 +774,6 @@ public class Map {
 
 
 
-
-
     public int getViewX() {
         return viewX;
     }
@@ -1384,11 +848,11 @@ public class Map {
     }
 
 
-    public ArrayList<MovingObject> getBackgroundTextureObjects() {
+    public ArrayList<RotatingMovingObject> getBackgroundTextureObjects() {
         return backgroundTextureObjects;
     }
 
-    public void setBackgroundTextureObjects(ArrayList<MovingObject> backgroundTextureObjects) {
+    public void setBackgroundTextureObjects(ArrayList<RotatingMovingObject> backgroundTextureObjects) {
         this.backgroundTextureObjects = backgroundTextureObjects;
     }
 }

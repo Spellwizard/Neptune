@@ -7,14 +7,12 @@ public class devTools {
 
     /**
      *
-     * @param gg
-     * @param gameMap
-     * @param backgroundTextureObjects
+     * @param gg - the 2d graphics window to draw on
+     * @param gameMap - the Map to use to adjust as needed
      */
     protected static void drawScoreBoard(Graphics2D gg
             ,
                                          Map gameMap,
-                                         ArrayList<MovingObject> backgroundTextureObjects,
                                          Player self
             ){
             //  SCOREBOARD
@@ -30,8 +28,8 @@ public class devTools {
             if(self!=null){
 
                     String line = "Player: "+getVars_Player(self, gameMap, false,
-                            false, true, false, false,
-                            false, true,false, false, true);
+                            false, false, false, false,
+                            false, false,false, false, true);
 
 
                     posy+=250;
@@ -44,21 +42,35 @@ public class devTools {
 
 
 
+                /*
+                 * PROJECTILES
+                 */
+                if (self.getProjectileList() != null)
+                    for (RotatingMovingObject john : self.getProjectileList()) {
+                        line = "Projectiles: " + john.getRotation()+", "+ devTools.getVars_MovingObject(john, gameMap, true, false, false,
+                                false, false, false, false, false);
+                        gg.drawString(line
+                                , 50, 50 + posy);
+                        posy += 15;
+                    }
+
+
 
                 if (false) {
 
-                    /**
+
+
+                    /*
                      * make some text on screen with some detail for the object list of the buildings
                      */
-                    if (backgroundTextureObjects != null)
-                        for (MovingObject john : backgroundTextureObjects) {
+                    if (gameMap.getBackgroundTextureObjects() != null)
+                        for (RotatingMovingObject john : gameMap.getBackgroundTextureObjects()) {
                             line = "BackgroundTextureObjects: " + devTools.getVars_SolidObject(john, gameMap, true, false, true,
                                     false, true);
                             gg.drawString(line
                                     , 50, 50 + posy);
                             posy += 15;
                         }
-
                 }
 
 

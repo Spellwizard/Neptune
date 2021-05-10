@@ -40,7 +40,7 @@ public class MainSecond {
         protected GameCanvas() {
 
             //Set the size of the grid tiles
-            int tile_width = 25;
+            int tile_width = 40;
             //For ease of change I keep the height and width as
             // different objects but for now but I just set them to the same value
             int tile_height = tile_width;
@@ -132,7 +132,7 @@ public class MainSecond {
 
                     //BUILDINGS
 
-                    MovingObject.drawMovingObjectList(gg, world_Map.getBackgroundTextureObjects(), world_Map,
+                    RotatingMovingObject.drawRotatingMovingObject_Round(gg, world_Map.getBackgroundTextureObjects(), world_Map,
                             true, true);
 
 
@@ -141,7 +141,7 @@ public class MainSecond {
 
 
                     //need to update the dev info so that we get the various variables I need on the fly to debug / test
-                    devTools.drawScoreBoard(gg,world_Map, world_Map.getBackgroundTextureObjects(), PlayerZero  );
+                    devTools.drawScoreBoard(gg,world_Map, PlayerZero  );
 
 
                 }

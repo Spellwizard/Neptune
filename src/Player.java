@@ -1,6 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import static java.lang.Math.abs;
 
@@ -12,6 +12,8 @@ public class Player extends RotatingMovingObject {
     private int buttonLeft; //LEFT
     private int buttonRight; //RIGHT
     private int buttonSprint = 16;//SPRINT
+
+    private int buttonFire_Left = 81;//fire weapons on the left side
 
     //Scoreboard to track the score that the player object has achieved :)
     private int player_score;
@@ -66,10 +68,6 @@ public class Player extends RotatingMovingObject {
      */
     protected void drawUI(Graphics2D gg, Map maps){
 
-
-      //
-        //  drawBelt(gg, maps);
-
         DrawStaticVariables(gg, maps);
 
         int barWidth = 200;
@@ -78,8 +76,6 @@ public class Player extends RotatingMovingObject {
 
         //HealthBar
         drawPercentageBar(gg,maps, barX,barY,getHealth(),MAXHEALTH, "Health", new Color(255, 0, 0));
-
-        barY +=45;
 
     }
 
@@ -124,7 +120,6 @@ public class Player extends RotatingMovingObject {
         String players_folder = "Players Model\\Player_";
         String fileName = "playersettings.txt";
         String type = "Player";
-
 
         file.setFileName("Players Model\\Player_0\\playersettings.txt");
 
@@ -263,11 +258,31 @@ public class Player extends RotatingMovingObject {
      */
     protected static void drawPlayer(   Graphics2D gg,      Player a,       Map maps) {
 
-        //Calculate motion of the object
-        a.calcMovement();
-
 
         a.drawobj(gg, maps);
+
+        if(a.getProjectileList()!=null){
+
+                RotatingMovingObject.drawRotatingMovingObject_Round(gg,a.getProjectileList(),maps,true,true);
+
+                for(int i = 0; i < a.getProjectileList().size(); i++
+                ){
+
+                    a.getProjectileList().get(i).calcMovement();
+
+
+                    if(a.getProjectileList().get(i).getDistanceTraveled().getCurrent_Position() >=
+                            a.getProjectileList().get(i).getDistanceTraveled().getMax_Level()
+                    ){
+                        a.getProjectileList().remove(i);
+                        i--;
+                        if(i<0)i=0;
+                    }
+
+
+                }
+
+        }
 
 
 
@@ -387,7 +402,7 @@ public class Player extends RotatingMovingObject {
 
                        // this.setObjHSpeed(-abs(this.getDefaultHSpeed()));
 
-                        this.setRotation(this.getRotation()+15);
+                        this.setRotation(this.getRotation() + this.getSpeed().getIncrement_HeatUp()    );
 
 
                     } else //RIGHT Key
@@ -398,7 +413,7 @@ public class Player extends RotatingMovingObject {
                           //  this.setObjHSpeed(abs(this.getDefaultHSpeed()));
 
 
-                            this.setRotation(this.getRotation()-15);
+                            this.setRotation(this.getRotation() - this.getSpeed().getIncrement_HeatUp()    );
                         }
 
 
@@ -411,8 +426,66 @@ public class Player extends RotatingMovingObject {
 
                         }
 
+
+                        //Left Fire
+                        else if(this.getButtonFire_Left()==key){
+
+                            //fire the projectile(s?) to the left of the player
+
+                            //make an projectile at the center of the object and set it to -90 degrees of the current position.
+
+                            RotatingMovingObject projectile_1 =
+                              new RotatingMovingObject(
+                                      this.getPosX()+(this.getObjWidth()/2),
+                                      this.getPosY()+(this.getObjHeight()/2),
+
+                                      5,5,1,1
+                                      )  ;
+
+                            RotatingMovingObject projectile_2 =
+                                    new RotatingMovingObject(
+                                            projectile_1.getPosX()+(this.getObjWidth()/4),
+                                            projectile_1.getPosY()+ (this.getObjHeight()/4),
+
+                                            5,5,1,1
+                                    )  ;
+
+                            RotatingMovingObject projectile_3 =
+                                    new RotatingMovingObject(
+                                            projectile_1.getPosX()-(this.getObjWidth()/4),
+                                            projectile_1.getPosY()-(this.getObjHeight()/4),
+
+                                            5,5,1,1
+                                    )  ;
+
+                            projectile_1.setRotation(this.getRotation()+90);
+                            projectile_2.setRotation(this.getRotation()+90);
+                            projectile_3.setRotation(this.getRotation()+90);
+
+                            projectile_1.setSpeed(
+                                    new CoolDownBar(10, 10,1,1,true));
+
+                            projectile_2.setSpeed(projectile_1.getSpeed());
+
+                            projectile_3.setSpeed(projectile_1.getSpeed());
+
+
+                            this.getProjectileList().add(projectile_1);
+                            this.getProjectileList().add(projectile_2);
+                            this.getProjectileList().add(projectile_3);
+
+                        }
+
     }
 
+
+    public int getButtonFire_Left() {
+        return buttonFire_Left;
+    }
+
+    public void setButtonFire_Left(int buttonFire_Left) {
+        this.buttonFire_Left = buttonFire_Left;
+    }
 
     protected int getButtonUp() {
         return buttonUp;

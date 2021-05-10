@@ -8,8 +8,8 @@ public class OverridingValuesClass {
      * To help with clutter in 'Main' class
      * and in general to be the class that actually overrides values as provided by files
      * eg: getting pictures of objects and reading object settings
-     * Additionally storing a default value of all objects will be useful b/c it will stop unneccessary calls for pictures / reading files
-     * Which can have significant effect on performance especially if the user is repeatitly creating objects
+     * Additionally storing a default value of all objects will be useful b/c it will stop un necessary calls for pictures / reading files
+     * Which can have significant effect on performance especially if the user is repeatedly creating objects
      */
 
     /**
@@ -26,7 +26,7 @@ public class OverridingValuesClass {
      *
      * @param nut        given a SolidObject or child read from the filereader
      * @param fileReader read the file reader for certain values as documented above and override values
-     * @return false if either nut or filereader was not initalized
+     * @return false if either nut or filereader was not init
      */
     protected static boolean OverrideSolidObject(SolidObject nut, FileReader fileReader) {
         String temp;
@@ -206,6 +206,33 @@ public class OverridingValuesClass {
         return false;
 
     }
+
+
+    /**
+     * ROTATINGMOVINGOBJECTS
+     * defaultHSpeed & HSpeed sets the current H speed and stores the original H speed as default for calling later
+     * defaultVSpeed & VSpeed sets the current V speed and stores the oringinal V speed as defualt for caling later
+     *
+     *
+     */
+    protected static boolean OverrideRotatingMovingObjects(RotatingMovingObject nut, RotatingMovingObject defaultObject) {
+
+        if (OverrideMovingObject(nut, defaultObject)) {
+            //ROTATION
+            nut.setRotation(defaultObject.getRotation());
+
+            //SPEED
+            nut.setSpeed(defaultObject.getSpeed());
+
+            //DISTANCETRAVELED
+            nut.setDistanceTraveled(defaultObject.getDistanceTraveled());
+
+            return true;
+        }
+        return false;
+    }
+
+
 
     /**
      * Player

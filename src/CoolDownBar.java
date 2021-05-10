@@ -51,6 +51,10 @@ public class CoolDownBar {
         this.in_Use = in_Use;
     }
 
+    /**
+     * Simple number comparision contained within a function for easy use to ensure
+     * that the current value falls between 0 and up to the max value but no more and stopping as needed
+     */
     public void safetycheckCurrentValue(){
         if(current_Position>max_Level){
             current_Position = max_Level;
