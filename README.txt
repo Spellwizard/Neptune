@@ -1,6 +1,5 @@
 *	Author: Liam Johnston
 *	Creation Date: 04/26/2021
-*	Purpose: To show that I can create things and that I'm better than my current occupation
 *
 *	User Notes: the program is started by running the java file
 *	On running you should find multiple buttons along with an image in the background, this is the menu
